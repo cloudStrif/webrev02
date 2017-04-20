@@ -1,0 +1,329 @@
+<?xml version="1.0"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head><meta charset="utf-8">
+<meta http-equiv="cache-control" content="no-cache" />
+<meta http-equiv="Pragma" content="no-cache" />
+<meta http-equiv="Expires" content="-1" />
+<!--
+   Note to customizers: the body of the webrev is IDed as SUNWwebrev
+   to allow easy overriding by users of webrev via the userContent.css
+   mechanism available in some browsers.
+
+   For example, to have all "removed" information be red instead of
+   brown, set a rule in your userContent.css file like:
+
+       body#SUNWwebrev span.removed { color: red ! important; }
+-->
+<style type="text/css" media="screen">
+body {
+    background-color: #eeeeee;
+}
+hr {
+    border: none 0;
+    border-top: 1px solid #aaa;
+    height: 1px;
+}
+div.summary {
+    font-size: .8em;
+    border-bottom: 1px solid #aaa;
+    padding-left: 1em;
+    padding-right: 1em;
+}
+div.summary h2 {
+    margin-bottom: 0.3em;
+}
+div.summary table th {
+    text-align: right;
+    vertical-align: top;
+    white-space: nowrap;
+}
+span.lineschanged {
+    font-size: 0.7em;
+}
+span.oldmarker {
+    color: red;
+    font-size: large;
+    font-weight: bold;
+}
+span.newmarker {
+    color: green;
+    font-size: large;
+    font-weight: bold;
+}
+span.removed {
+    color: brown;
+}
+span.changed {
+    color: blue;
+}
+span.new {
+    color: blue;
+    font-weight: bold;
+}
+a.print { font-size: x-small; }
+
+</style>
+
+<style type="text/css" media="print">
+pre { font-size: 0.8em; font-family: courier, monospace; }
+span.removed { color: #444; font-style: italic }
+span.changed { font-weight: bold; }
+span.new { font-weight: bold; }
+span.newmarker { font-size: 1.2em; font-weight: bold; }
+span.oldmarker { font-size: 1.2em; font-weight: bold; }
+a.print {display: none}
+hr { border: none 0; border-top: 1px solid #aaa; height: 1px; }
+</style>
+
+<title>Old src/java.desktop/share/classes/javax/swing/JPanel.java</title>
+<body id="SUNWwebrev">
+<pre>
+   1 /*
+   2  * Copyright (c) 1997, 2015, Oracle and/or its affiliates. All rights reserved.
+   3  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
+   4  *
+   5  * This code is free software; you can redistribute it and/or modify it
+   6  * under the terms of the GNU General Public License version 2 only, as
+   7  * published by the Free Software Foundation.  Oracle designates this
+   8  * particular file as subject to the "Classpath" exception as provided
+   9  * by Oracle in the LICENSE file that accompanied this code.
+  10  *
+  11  * This code is distributed in the hope that it will be useful, but WITHOUT
+  12  * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+  13  * FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+  14  * version 2 for more details (a copy is included in the LICENSE file that
+  15  * accompanied this code).
+  16  *
+  17  * You should have received a copy of the GNU General Public License version
+  18  * 2 along with this work; if not, write to the Free Software Foundation,
+  19  * Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA.
+  20  *
+  21  * Please contact Oracle, 500 Oracle Parkway, Redwood Shores, CA 94065 USA
+  22  * or visit www.oracle.com if you need additional information or have any
+  23  * questions.
+  24  */
+  25 package javax.swing;
+  26 
+  27 import java.awt.*;
+  28 import java.beans.JavaBean;
+  29 import java.beans.BeanProperty;
+  30 
+  31 import javax.swing.plaf.*;
+  32 import javax.accessibility.*;
+  33 
+  34 import java.io.ObjectOutputStream;
+  35 import java.io.IOException;
+  36 
+  37 
+  38 /**
+  39  * &lt;code&gt;JPanel&lt;/code&gt; is a generic lightweight container.
+  40  * For examples and task-oriented documentation for JPanel, see
+  41  * &lt;a
+  42  href="http://docs.oracle.com/javase/tutorial/uiswing/components/panel.html"&gt;How to Use Panels&lt;/a&gt;,
+  43  * a section in &lt;em&gt;The Java Tutorial&lt;/em&gt;.
+  44  * &lt;p&gt;
+  45  * &lt;strong&gt;Warning:&lt;/strong&gt; Swing is not thread safe. For more
+  46  * information see &lt;a
+  47  * href="package-summary.html#threading"&gt;Swing's Threading
+  48  * Policy&lt;/a&gt;.
+  49  * &lt;p&gt;
+  50  * &lt;strong&gt;Warning:&lt;/strong&gt;
+  51  * Serialized objects of this class will not be compatible with
+  52  * future Swing releases. The current serialization support is
+  53  * appropriate for short term storage or RMI between applications running
+  54  * the same version of Swing.  As of 1.4, support for long term storage
+  55  * of all JavaBeans&amp;trade;
+  56  * has been added to the &lt;code&gt;java.beans&lt;/code&gt; package.
+  57  * Please see {@link java.beans.XMLEncoder}.
+  58  *
+  59  * @author Arnaud Weber
+  60  * @author Steve Wilson
+  61  * @since 1.2
+  62  */
+  63 @JavaBean(defaultProperty = "UI", description = "A generic lightweight container.")
+  64 @SuppressWarnings("serial") // Same-version serialization only
+  65 public class JPanel extends JComponent implements Accessible
+  66 {
+  67     /**
+  68      * @see #getUIClassID
+  69      * @see #readObject
+  70      */
+  71     private static final String uiClassID = "PanelUI";
+  72 
+  73     /**
+  74      * Creates a new JPanel with the specified layout manager and buffering
+  75      * strategy.
+  76      *
+  77      * @param layout  the LayoutManager to use
+  78      * @param isDoubleBuffered  a boolean, true for double-buffering, which
+  79      *        uses additional memory space to achieve fast, flicker-free
+  80      *        updates
+  81      */
+  82     public JPanel(LayoutManager layout, boolean isDoubleBuffered) {
+  83         setLayout(layout);
+  84         setDoubleBuffered(isDoubleBuffered);
+  85         setUIProperty("opaque", Boolean.TRUE);
+  86         updateUI();
+  87     }
+  88 
+  89     /**
+  90      * Create a new buffered JPanel with the specified layout manager
+  91      *
+  92      * @param layout  the LayoutManager to use
+  93      */
+  94     public JPanel(LayoutManager layout) {
+  95         this(layout, true);
+  96     }
+  97 
+  98     /**
+  99      * Creates a new &lt;code&gt;JPanel&lt;/code&gt; with &lt;code&gt;FlowLayout&lt;/code&gt;
+ 100      * and the specified buffering strategy.
+ 101      * If &lt;code&gt;isDoubleBuffered&lt;/code&gt; is true, the &lt;code&gt;JPanel&lt;/code&gt;
+ 102      * will use a double buffer.
+ 103      *
+ 104      * @param isDoubleBuffered  a boolean, true for double-buffering, which
+ 105      *        uses additional memory space to achieve fast, flicker-free
+ 106      *        updates
+ 107      */
+ 108     public JPanel(boolean isDoubleBuffered) {
+ 109         this(new FlowLayout(), isDoubleBuffered);
+ 110     }
+ 111 
+ 112     /**
+ 113      * Creates a new &lt;code&gt;JPanel&lt;/code&gt; with a double buffer
+ 114      * and a flow layout.
+ 115      */
+ 116     public JPanel() {
+ 117         this(true);
+ 118     }
+ 119 
+ 120     /**
+ 121      * Resets the UI property with a value from the current look and feel.
+ 122      *
+ 123      * @see JComponent#updateUI
+ 124      */
+ 125     public void updateUI() {
+ 126         setUI((PanelUI)UIManager.getUI(this));
+ 127     }
+ 128 
+ 129     /**
+ 130      * Returns the look and feel (L&amp;amp;amp;F) object that renders this component.
+ 131      *
+ 132      * @return the PanelUI object that renders this component
+ 133      * @since 1.4
+ 134      */
+ 135     public PanelUI getUI() {
+ 136         return (PanelUI)ui;
+ 137     }
+ 138 
+ 139 
+ 140     /**
+ 141      * Sets the look and feel (L&amp;amp;F) object that renders this component.
+ 142      *
+ 143      * @param ui  the PanelUI L&amp;amp;F object
+ 144      * @see UIDefaults#getUI
+ 145      * @since 1.4
+ 146      */
+ 147     @BeanProperty(hidden = true, visualUpdate = true, description
+ 148             = "The UI object that implements the Component's LookAndFeel.")
+ 149     public void setUI(PanelUI ui) {
+ 150         super.setUI(ui);
+ 151     }
+ 152 
+ 153     /**
+ 154      * Returns a string that specifies the name of the L&amp;amp;F class
+ 155      * that renders this component.
+ 156      *
+ 157      * @return "PanelUI"
+ 158      * @see JComponent#getUIClassID
+ 159      * @see UIDefaults#getUI
+ 160      */
+ 161     @BeanProperty(bound = false, expert = true, description
+ 162             = "A string that specifies the name of the L&amp;amp;F class.")
+ 163     public String getUIClassID() {
+ 164         return uiClassID;
+ 165     }
+ 166 
+ 167 
+ 168     /**
+ 169      * See readObject() and writeObject() in JComponent for more
+ 170      * information about serialization in Swing.
+ 171      */
+ 172     private void writeObject(ObjectOutputStream s) throws IOException {
+ 173         s.defaultWriteObject();
+ 174         if (getUIClassID().equals(uiClassID)) {
+ 175             byte count = JComponent.getWriteObjCounter(this);
+ 176             JComponent.setWriteObjCounter(this, --count);
+ 177             if (count == 0 &amp;&amp; ui != null) {
+ 178                 ui.installUI(this);
+ 179             }
+ 180         }
+ 181     }
+ 182 
+ 183 
+ 184     /**
+ 185      * Returns a string representation of this JPanel. This method
+ 186      * is intended to be used only for debugging purposes, and the
+ 187      * content and format of the returned string may vary between
+ 188      * implementations. The returned string may be empty but may not
+ 189      * be &lt;code&gt;null&lt;/code&gt;.
+ 190      *
+ 191      * @return  a string representation of this JPanel.
+ 192      */
+ 193     protected String paramString() {
+ 194         return super.paramString();
+ 195     }
+ 196 
+ 197 /////////////////
+ 198 // Accessibility support
+ 199 ////////////////
+ 200 
+ 201     /**
+ 202      * Gets the AccessibleContext associated with this JPanel.
+ 203      * For JPanels, the AccessibleContext takes the form of an
+ 204      * AccessibleJPanel.
+ 205      * A new AccessibleJPanel instance is created if necessary.
+ 206      *
+ 207      * @return an AccessibleJPanel that serves as the
+ 208      *         AccessibleContext of this JPanel
+ 209      */
+ 210     @BeanProperty(bound = false)
+ 211     public AccessibleContext getAccessibleContext() {
+ 212         if (accessibleContext == null) {
+ 213             accessibleContext = new AccessibleJPanel();
+ 214         }
+ 215         return accessibleContext;
+ 216     }
+ 217 
+ 218     /**
+ 219      * This class implements accessibility support for the
+ 220      * &lt;code&gt;JPanel&lt;/code&gt; class.  It provides an implementation of the
+ 221      * Java Accessibility API appropriate to panel user-interface
+ 222      * elements.
+ 223      * &lt;p&gt;
+ 224      * &lt;strong&gt;Warning:&lt;/strong&gt;
+ 225      * Serialized objects of this class will not be compatible with
+ 226      * future Swing releases. The current serialization support is
+ 227      * appropriate for short term storage or RMI between applications running
+ 228      * the same version of Swing.  As of 1.4, support for long term storage
+ 229      * of all JavaBeans&amp;trade;
+ 230      * has been added to the &lt;code&gt;java.beans&lt;/code&gt; package.
+ 231      * Please see {@link java.beans.XMLEncoder}.
+ 232      */
+ 233     @SuppressWarnings("serial") // Same-version serialization only
+ 234     protected class AccessibleJPanel extends AccessibleJComponent {
+ 235 
+ 236         /**
+ 237          * Get the role of this object.
+ 238          *
+ 239          * @return an instance of AccessibleRole describing the role of the
+ 240          * object
+ 241          */
+ 242         public AccessibleRole getAccessibleRole() {
+ 243             return AccessibleRole.PANEL;
+ 244         }
+ 245     }
+ 246 }
+</pre></body></html>

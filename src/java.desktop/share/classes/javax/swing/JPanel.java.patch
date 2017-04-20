@@ -1,0 +1,19 @@
+--- old/src/java.desktop/share/classes/javax/swing/JPanel.java	2017-04-20 11:23:54.027415588 +0200
++++ new/src/java.desktop/share/classes/javax/swing/JPanel.java	2017-04-20 11:23:53.855415596 +0200
+@@ -179,6 +179,16 @@
+             }
+         }
+     }
++    /**
++     *only for Linux System , try to sync repaint method   
++     *to correct for the moment bug JDK-8178091.
++     *the bug is only on Linux ,so in other os it use asyncrone repaint()
++     */
++    public void repaint(){
++        super.repaint();
++        if(System.getProperty("os.name").equals("Linux"))
++            Toolkit.getDefaultToolkit().sync();
++    }
+ 
+ 
+     /**
